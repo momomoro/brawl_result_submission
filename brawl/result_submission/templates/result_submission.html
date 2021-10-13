@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Result Submission</title>
+</head>
+<body>
+
+<form id="resultForm" data-decks-url="{% url 'result_submission:ajax_load_decks' %}"
+      action="{% url 'result_submission:index' %}" method="post">
+    {% csrf_token %}
+    {{ players }}
+    {% for game in games %}
+    <div> {{ game.player1_deck.label}} {{ game.player1_deck }} {{ game.player2_deck.label}} {{ game.player2_deck }}
+    </div>
+
+    <div>
+        {{game.win.label}}
+        {% for radio in game.win %}
+        <div><label for="{{ radio.id_for_label }}" data-radio-player="{{radio.choice_label}}"> {{ radio.choice_label }}</label>{{radio.tag}}</div>
+        {% endfor %}
+    </div>
+
+    <div>
+        {{game.play.label}}
+        {% for radio in game.play %}
+        <div><label for="{{ radio.id_for_label }}" data-radio-player="{{radio.choice_label}}"> {{ radio.choice_label }}</label>{{radio.tag}}</div>
+        {% endfor %}
+    </div>
+
+    {% endfor %}
+    <input type="submit" value="Submit">
+</form>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+        function getDecks() {
+            var url = $("#resultForm").attr("data-decks-url");
+            var playerId = $(this).val();
+            var player = $(this).attr("data-player")
+
+            $.ajax({
+                url: url,
+                data: {
+                    'player': playerId
+                },
+                success: function (data) {
+                    $("[id$=" + player + "_deck]").html(data);
+                }
+            });
+
+        }
+
+        function updatePlayerNames() {
+            var playerId = $(this).val();
+            var player = $(this).attr("data-player")
+            $("[data-radio-player^=" + player + "]").each(function() {
+                $(this).text(playerId)
+                $(this).next().val(playerId)
+            });
+        }
+
+        $("[data-player^=player]").change(getDecks);
+        $("[data-player^=player]").change(updatePlayerNames);
+        $("[data-player^=player]").change();
+
+</script>
+
+</body>
+</html>
