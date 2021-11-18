@@ -7,11 +7,7 @@ from django.forms import formset_factory
 # Create your views here.
 
 from .forms import PlayerForm, GameResultForm
-
-# TODO: load this from google
-all_decks = {"Divock": ["Domri", "Koma", "Yawg", "Valki"],
-         "Games": ["Sythis", "Tamiyo", "Feather", "Zareth"],
-         "griffs": ["Yawg", "Chandra", "Teferi", "Esika"]}
+from .common import get_sheet, generate_decks, SHEET_ID, RANGE
 
 
 def index(request):
@@ -28,5 +24,7 @@ def index(request):
 
 def load_decks(request):
     player = request.GET.get('player')
-    decks = all_decks[player]
-    return render(request, 'deck_dropdown.html', {'decks': decks})
+    sheet = get_sheet(SHEET_ID, RANGE)
+    decks = generate_decks(sheet['values'])
+    player_decks = decks[player]
+    return render(request, 'deck_dropdown.html', {'decks': player_decks})
